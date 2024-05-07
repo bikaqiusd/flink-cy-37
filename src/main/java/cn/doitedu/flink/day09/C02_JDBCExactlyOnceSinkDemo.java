@@ -31,7 +31,7 @@ import java.sql.SQLException;
 public class C02_JDBCExactlyOnceSinkDemo {
     public static void main(String[] args) throws Exception {
         Configuration conf = new Configuration();
-        conf.setInteger(RestOptions.PORT, 18083);
+//        conf.setInteger(RestOptions.PORT, 18083);
         StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment(conf);
         //开启checkpoint
         env.enableCheckpointing(30000);
@@ -48,7 +48,11 @@ public class C02_JDBCExactlyOnceSinkDemo {
                 .setValueOnlyDeserializer(new SimpleStringSchema())
                 .build();
 
+
+
         DataStreamSource<String> lines = env.fromSource(soure, WatermarkStrategy.noWatermarks(), "Kafka Source");
+
+        lines.print("kafka");
 
         //socket数据源
         DataStreamSource<String> lines2 = env.socketTextStream("doitedu", 8888);
@@ -65,6 +69,8 @@ public class C02_JDBCExactlyOnceSinkDemo {
         });
 
         DataStream<String> unionStream = lines.union(lines2);
+
+        unionStream.print("unoin");
 
         SingleOutputStreamOperator<Tuple3<Long, String, Integer>> tpStream = unionStream.map(new MapFunction<String, Tuple3<Long, String, Integer>>() {
             @Override
