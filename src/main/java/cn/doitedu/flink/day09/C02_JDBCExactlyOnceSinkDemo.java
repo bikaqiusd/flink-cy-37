@@ -41,7 +41,7 @@ public class C02_JDBCExactlyOnceSinkDemo {
         //kafka数据源
         KafkaSource<String> soure = KafkaSource.<String>builder()
                 .setBootstrapServers("doitedu:9092")
-                .setTopics("tp-users")
+                .setTopics("tp-users1")
                 .setGroupId("mygroup02")
                 .setStartingOffsets(OffsetsInitializer.committedOffsets(OffsetResetStrategy.EARLIEST))
                 .setProperty("commit.offsets.on.checkpoint", "false")
@@ -82,6 +82,7 @@ public class C02_JDBCExactlyOnceSinkDemo {
                 return Tuple3.of(id, name, age);
             }
         });
+        tpStream.print("tpStream");
 
         SinkFunction<Tuple3<Long, String, Integer>> mysqlSink = JdbcSink.exactlyOnceSink(
                 "insert into tb_users (id, name, age) values (?, ?, ?)",
