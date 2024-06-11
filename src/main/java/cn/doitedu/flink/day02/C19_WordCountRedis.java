@@ -1,4 +1,4 @@
-package cn.doitedu.flink.day03;
+package cn.doitedu.flink.day02;
 
 import cn.doitedu.flink.day01.LineToTupleFunction;
 import org.apache.flink.api.java.tuple.Tuple2;
