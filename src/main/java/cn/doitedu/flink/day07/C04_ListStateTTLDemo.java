@@ -3,6 +3,8 @@ package cn.doitedu.flink.day07;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.common.state.ListState;
 import org.apache.flink.api.common.state.ListStateDescriptor;
+import org.apache.flink.api.common.state.StateTtlConfig;
+import org.apache.flink.api.common.time.Time;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.api.java.tuple.Tuple4;
@@ -46,7 +48,9 @@ public class C04_ListStateTTLDemo {
         private ListState<String> listState;
         @Override
         public void open(Configuration parameters) throws Exception {
+            StateTtlConfig ttlConfig = StateTtlConfig.newBuilder(Time.seconds(30)).build();
             ListStateDescriptor<String> stateDescriptor = new ListStateDescriptor<>("event-state", String.class);
+            stateDescriptor.enableTimeToLive(ttlConfig);
             listState = getRuntimeContext().getListState(stateDescriptor);
         }
 

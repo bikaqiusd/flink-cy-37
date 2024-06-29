@@ -2,8 +2,10 @@ package cn.doitedu.flink.day07;
 
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.common.functions.RichMapFunction;
+import org.apache.flink.api.common.state.StateTtlConfig;
 import org.apache.flink.api.common.state.ValueState;
 import org.apache.flink.api.common.state.ValueStateDescriptor;
+import org.apache.flink.api.common.time.Time;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
@@ -44,7 +46,20 @@ public class C02_ValueStateTTLDemo {
         private transient ValueState<Integer> countState;
         @Override
         public void open(Configuration parameters) throws Exception {
+            StateTtlConfig ttlConfig = StateTtlConfig
+                    .newBuilder(Time.seconds(30))
+                    //设置状态对应时间的更新方式：(默认)是当创建、或修改最近的数据，会修改其最近的访问时间
+                    //.setUpdateType(StateTtlConfig.UpdateType.OnCreateAndWrite)
+                    //当创建、修改、读取指定的数据，都会改变其最近访问的时间
+                    //.setUpdateType(StateTtlConfig.UpdateType.OnReadAndWrite)
+                    //设置状态的可见性：(默认)只要状态超时，就无法使用了，即使状态没有被清除
+                    //.setStateVisibility(StateTtlConfig.StateVisibility.NeverReturnExpired)
+                    //只要状态没有被清除，即使超时了，也可以使用
+                    //.setStateVisibility(StateTtlConfig.StateVisibility.ReturnExpiredIfNotCleanedUp)
+                    .build();
             ValueStateDescriptor<Integer> stateDescriptor = new ValueStateDescriptor<>("count-state", Integer.class);
+            stateDescriptor.enableTimeToLive(ttlConfig);
+
             countState = getRuntimeContext().getState(stateDescriptor);
         }
 
